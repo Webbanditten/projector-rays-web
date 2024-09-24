@@ -1,0 +1,23 @@
+﻿@using ProjectorRaysWeb.CloudflareTurnstile
+@inject Microsoft.Extensions.Options.IOptions<CloudflareTurnstileSettings> CFTOptions
+@{
+    var turnstileConfig = CFTOptions.Value;
+    ViewData["Title"] = "Home Page";
+}
+
+<!-- Cloudflare Turnstile Setup -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
+
+<div class="text-center">
+    <h1 class="display-4">Select DCR or CCT files to continue</h1>
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="UploadFile">
+        @(Html.AntiForgeryToken())
+         <div class="cf-turnstile" data-sitekey="@(turnstileConfig.SiteKey)" data-callback="javascriptCallback"></div>
+        <div class="form-group">
+            <label for="files">Files</label>
+            <input type="file" id="files" name="files" accept=".dcr, .cct" multiple/>
+        </div>
+        <button id="submitFile" type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
