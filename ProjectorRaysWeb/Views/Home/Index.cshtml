@@ -4,20 +4,97 @@
     var turnstileConfig = CFTOptions.Value;
     ViewData["Title"] = "Home Page";
 }
-
+ <style>
+    .drop-zone {
+      max-width: 400px;
+      height: 200px;
+      padding: 20px;
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      color: #888;
+      transition: background-color 0.3s ease;
+    }
+    .drop-zone.dragover {
+      background-color: #f0f8ff;
+      border-color: #000;
+    }
+    #file-input {
+      display: none;
+    }
+    .files {
+        width: 400px;
+        margin: 0 auto;
+    }
+  </style>
 <!-- Cloudflare Turnstile Setup -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
 
 <div class="text-center">
-    <h1 class="display-4">Select DCR or CCT files to continue</h1>
+    <h3 class="display-6">Select DCR or CCT files to continue</h3>
     <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="UploadFile">
         @(Html.AntiForgeryToken())
-         <div class="cf-turnstile" data-sitekey="@(turnstileConfig.SiteKey)" data-callback="javascriptCallback"></div>
-        <div class="form-group">
+        <div class="form-group files">
             <label for="files">Files</label>
-            <input type="file" id="files" name="files" accept=".dcr, .cct" multiple/>
+            <div id="drop-zone" class="drop-zone">
+                Drag & Drop files here or <button type="button" onclick="document.getElementById('files').click()">browse</button>
+                <input type="file" id="files" name="files" accept=".dcr, .cct" multiple style="display:none;" />
+            </div>
+            <ul id="file-list"></ul>
+        </div>
+        
+
+        <div class="form-group">
+            <div class="cf-turnstile" data-sitekey="@(turnstileConfig.SiteKey)" data-callback="javascriptCallback" data-theme="light"></div>
         </div>
         <button id="submitFile" type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
 
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('files');
+    const fileList = document.getElementById('file-list');
+
+    // Prevent form submission on file selection
+    fileInput.addEventListener('change', handleFiles);
+
+    // Prevent default behaviors for drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => e.preventDefault());
+        dropZone.addEventListener(eventName, (e) => e.stopPropagation());
+    });
+
+    // Highlight the drop zone when dragging files over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+    });
+
+    // Remove highlight when files are dragged out or dropped
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+    });
+
+    // Handle file drop
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        fileInput.files = files;  // Attach dropped files to file input
+        handleFiles();
+    });
+
+    // Handle selected files
+    function handleFiles() {
+        const files = fileInput.files;
+        fileList.innerHTML = '';  // Clear the file list
+
+        // List the selected files
+        Array.from(files).forEach(file => {
+            const li = document.createElement('li');
+            li.textContent = file.name;
+            fileList.appendChild(li);
+        });
+    }
+</script>

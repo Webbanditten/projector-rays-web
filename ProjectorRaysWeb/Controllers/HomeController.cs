@@ -70,22 +70,37 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
             {
                 await file.CopyToAsync(fileStream);
             }
-
+            
             // Run exe with parameter of file path and folder name
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = pathToExe,
-                    Arguments = $"decompile {filePath} -o {Path.Combine(uploads, "output")}",
-                    RedirectStandardOutput = true,
+                    Arguments = $"decompile \"{filePath}\" -o {Path.Combine(uploads, "output")}",
+                    RedirectStandardOutput = true,   // Capture standard output
+                    RedirectStandardError = true,    // Optionally capture error output
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }
             };
 
+            // Start the process
             process.Start();
+
+            // Read the standard output
+            string output = await process.StandardOutput.ReadToEndAsync();
+
+            // Optionally read standard error
+            string errorOutput = await process.StandardError.ReadToEndAsync();
+
+            // Wait for process to exit
             await process.WaitForExitAsync();
+            
+            if (!string.IsNullOrEmpty(errorOutput))
+            {
+                return Content($"Error: {errorOutput}");
+            }
         }
         
         if (!Directory.EnumerateFiles(Path.Combine(uploads, "output")).Any()) {
@@ -98,14 +113,18 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
     
     public IActionResult Result(string folderName)
     {
-        return View(folderName);
+        return View(new ResultPageViewModel { FolderName  = folderName });
     }
     
     // Show result page
     public async Task<IActionResult> Download(string folderName)
     {
         var uploads = Path.Combine(Directory.GetCurrentDirectory(), "uploads", folderName);
-        
+        // If folder exists
+        if (!Directory.Exists(uploads))
+        {
+            return View("Error", new UploadErrorViewModel { Message = "Output folder does not exist. This means you've probably already downloaded the files once." });
+        }
 
         // Zip the output folder
         var zipPath = Path.Combine(uploads, "output.zip");
@@ -123,18 +142,15 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
         Directory.Delete(uploads, true);
         
         // Return the file then redirect to result page
+        // Make the guid/foldername short for the user
+        var shortFolderName = folderName[..6];
         
-        return File(memory, "application/zip", "output.zip");
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
+        return File(memory, "application/zip", shortFolderName + "-output.zip");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View("SysError", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

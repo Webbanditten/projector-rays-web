@@ -5,6 +5,7 @@
 
 <div class="text-center">
     <h1 class="display-4">Upload success</h1>
-    <p>Click the link below to download the converted files.</p>
-    <a href="@Url.Action("Download", "Home", new { folderName = Model.FolderName })" class="btn btn-primary">Download</a>
+    <p>Click the link below to download the converted files. After you've downloaded the files they will be deleted from the server.</p>
+     <p><a href="@Url.Action("Download", "Home", new { folderName = Model.FolderName })" class="btn btn-primary">Download</a></p>
+     <p><a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Upload and convert more files</a></p>
 </div>
