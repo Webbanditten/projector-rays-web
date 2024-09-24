@@ -8,7 +8,7 @@ on:
       - 'master'
       - 'main'
 jobs:
-  build-images:
+  build-pre-release-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
