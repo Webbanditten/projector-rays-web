@@ -26,4 +26,6 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            - USER=ContainerAdministrator
           tags: ghcr.io/webbanditten/projector-rays-web:latest
