@@ -1,4 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0-nanoserver-ltsc2022 AS base
+USER ContainerAdministrator
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
