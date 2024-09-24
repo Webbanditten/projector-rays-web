@@ -87,6 +87,25 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
             process.Start();
             await process.WaitForExitAsync();
         }
+        
+        if (!Directory.EnumerateFiles(Path.Combine(uploads, "output")).Any()) {
+            Directory.Delete(uploads, true);
+            return View("Error", new UploadErrorViewModel { Message = "Your file seems to not generate any output" });
+        }
+        
+        return RedirectToAction("Result", new { folderName });
+    }
+    
+    public IActionResult Result(string folderName)
+    {
+        return View(folderName);
+    }
+    
+    // Show result page
+    public async Task<IActionResult> Download(string folderName)
+    {
+        var uploads = Path.Combine(Directory.GetCurrentDirectory(), "uploads", folderName);
+        
 
         // Zip the output folder
         var zipPath = Path.Combine(uploads, "output.zip");
@@ -102,18 +121,10 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
 
         // Delete the output folder
         Directory.Delete(uploads, true);
-
-        return File(memory, "application/zip", "output.zip");
-    }
-    
-    // Show result page
-    public IActionResult Result(string folderName)
-    {
-        string currentDirectory = Directory.GetCurrentDirectory();
-        var folderPath = Path.Combine(currentDirectory, "uploads", folderName);
-        var files = Directory.GetFiles(folderPath);
         
-        return View(files);
+        // Return the file then redirect to result page
+        
+        return File(memory, "application/zip", "output.zip");
     }
 
     public IActionResult Privacy()

@@ -1,10 +1,9 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0-nanoserver-ltsc2022 AS base
-USER ContainerAdministrator
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022 AS build
 WORKDIR /src
 COPY ["ProjectorRaysWeb/ProjectorRaysWeb.csproj", "ProjectorRaysWeb/"]
 RUN dotnet restore "ProjectorRaysWeb/ProjectorRaysWeb.csproj"
