@@ -29,7 +29,11 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
         var userIpAddress = HttpContext.Connection.RemoteIpAddress;
         if (Request.Headers.ContainsKey("CF-Connecting-IP"))
         {
-            userIpAddress = IPAddress.Parse(Request.Headers["CF-Connecting-IP"]);
+            // Try parse ip
+            if (IPAddress.TryParse(Request.Headers["CF-Connecting-IP"], out var cfIp))
+            {
+                userIpAddress = cfIp;
+            }
         }
 
         // verify token
@@ -102,10 +106,69 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
                 return Content($"Error: {errorOutput}");
             }
         }
+
+        if (model.ExportAssets)
+        {
+            var pathToDirectorCastRipper = Path.Combine(Directory.GetCurrentDirectory(), "executables", "DirectorCastRipper", "DirectorCastRipper.exe");
+
+            foreach (var file in files)
+            {
+                var filePath = Path.Combine(uploads, file.FileName);
+
+                // Run exe with parameter of file path and folder name
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = pathToDirectorCastRipper,
+                        Arguments = $"--cli --dismiss-dialogs --include-names --member-types image sound text --output-folder {Path.Combine(uploads, "output")} --files \"{filePath}\"",
+                        RedirectStandardOutput = true,   // Capture standard output
+                        RedirectStandardError = true,    // Optionally capture error output
+                        RedirectStandardInput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = false,
+                        
+                    }
+                };
+
+                // Start the process
+                process.Start();
+
+                // Send an "enter" or line break to finish the program
+                await process.StandardInput.WriteLineAsync();
+                await process.StandardInput.FlushAsync();
+                process.StandardInput.Close();  // Close input stream after sending the line break
+
+                // Read the standard output and error concurrently
+                var outputTask = process.StandardOutput.ReadToEndAsync();
+                var errorTask = process.StandardError.ReadToEndAsync();
+
+                // Wait for both tasks to complete
+                await Task.WhenAll(outputTask, errorTask);
+
+                // Wait for the process to exit
+                await process.WaitForExitAsync();
+
+                // Get the results
+                var output = await outputTask;
+                var errorOutput = await errorTask;
+
+                if (!string.IsNullOrEmpty(errorOutput))
+                {
+                    return Content($"Error: {errorOutput}");
+                }
+
+                // Handle or log the output if needed
+                if (!string.IsNullOrEmpty(output))
+                {
+                    // Optionally handle the output (log it, save it, etc.)
+                }
+            }
+        } 
         
         if (!Directory.EnumerateFiles(Path.Combine(uploads, "output")).Any()) {
             Directory.Delete(uploads, true);
-            return View("Error", new UploadErrorViewModel { Message = "Your file seems to not generate any output" });
+            return View("Error", new UploadErrorViewModel { Message = "The files uploaded does not seem to not generate any output" });
         }
         
         return RedirectToAction("Result", new { folderName });

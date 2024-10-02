@@ -1,4 +1,5 @@
 ﻿@using ProjectorRaysWeb.CloudflareTurnstile
+@model ProjectorRaysWeb.Models.UploadFileModel
 @inject Microsoft.Extensions.Options.IOptions<CloudflareTurnstileSettings> CFTOptions
 @{
     var turnstileConfig = CFTOptions.Value;
@@ -45,8 +46,16 @@
             </div>
             <ul id="file-list"></ul>
         </div>
-        
 
+        <div class="form-group files">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="ExportAssets" />
+                <label class="form-check-label" asp-for="ExportAssets">
+                    Export assets?
+                </label>
+            </div>
+        </div>
+        
         <div class="form-group">
             <div class="cf-turnstile" data-sitekey="@(turnstileConfig.SiteKey)" data-callback="javascriptCallback" data-theme="light"></div>
         </div>

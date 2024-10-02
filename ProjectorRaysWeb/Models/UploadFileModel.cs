@@ -3,4 +3,5 @@
 public class UploadFileModel
 {
     public List<IFormFile> Files { get; set; }
+    public bool ExportAssets { get; set; }
 }
