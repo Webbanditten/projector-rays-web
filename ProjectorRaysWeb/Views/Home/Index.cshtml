@@ -1,5 +1,6 @@
 ﻿@using ProjectorRaysWeb.CloudflareTurnstile
 @inject Microsoft.Extensions.Options.IOptions<CloudflareTurnstileSettings> CFTOptions
+@model ProjectorRaysWeb.Models.UploadFileModel
 @{
     var turnstileConfig = CFTOptions.Value;
     ViewData["Title"] = "Home Page";
@@ -44,6 +45,14 @@
                 <input type="file" id="files" name="files" accept=".dcr, .cct" multiple style="display:none;" />
             </div>
             <ul id="file-list"></ul>
+        </div>
+        <div class="form-group files">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="ExportImages" />
+                <label class="form-check-label" asp-for="ExportImages">
+                    Try to export images (Experimental)
+                </label>
+            </div>
         </div>
         
 

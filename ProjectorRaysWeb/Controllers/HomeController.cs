@@ -1,10 +1,15 @@
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using ProjectorRaysWeb.CloudflareTurnstile;
 using ProjectorRaysWeb.Models;
+using Shockky;
+using Shockky.Chunks;
+using Shockky.Chunks.Cast;
 
 namespace ProjectorRaysWeb.Controllers;
 
@@ -103,6 +108,29 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
             }
         }
         
+        if(model.ExportImages) {
+            // For each file try to decompile it and extract the images
+            foreach (var file in files)
+            {
+                var outputFolder = Path.Combine(uploads, "output");
+                var filePath = Path.Combine(uploads, file.FileName);
+                
+                try {
+                    // Invoke shockky class
+                    var test = Shockky.Shockky.HandleExtractCommand(
+                        new List<FileInfo> { new(filePath) },
+                        true,
+                        new DirectoryInfo(outputFolder)
+                        );
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Shockky error: \r" + e);
+                }
+                
+            }
+        }
+        
         if (!Directory.EnumerateFiles(Path.Combine(uploads, "output")).Any()) {
             Directory.Delete(uploads, true);
             return View("Error", new UploadErrorViewModel { Message = "Your file seems to not generate any output" });
@@ -153,4 +181,5 @@ public class HomeController(CloudflareTurnstileProvider cloudflareTurnstileProvi
     {
         return View("SysError", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+    
 }

@@ -21,5 +21,6 @@ COPY --from=publish /app/publish .
 
 # Copy the executables folder into the final image
 COPY ["ProjectorRaysWeb/executables", "/app/executables/"]
+COPY ["ProjectorRaysWeb/Palettes", "/app/Palettes/"]
 
 ENTRYPOINT ["dotnet", "ProjectorRaysWeb.dll"]

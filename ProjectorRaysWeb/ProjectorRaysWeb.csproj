@@ -14,12 +14,51 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="FileOperations\" />
       <Folder Include="uploads\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Refit" Version="7.2.1" />
       <PackageReference Include="Refit.HttpClientFactory" Version="7.2.1" />
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Shockky\Shockky.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Palettes\grey.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\mac.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\metallic.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\ntsc.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\pastels.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\rainbow.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\vivid.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\web216.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\win.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Palettes\windir4.pal">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
