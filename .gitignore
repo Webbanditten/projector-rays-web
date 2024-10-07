@@ -43,3 +43,4 @@ msbuild.err
 msbuild.wrn
 appsettings.Development.json
 uploads
+docker-compose.yml
